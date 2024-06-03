@@ -96,6 +96,7 @@ body, html {
 #todo-list {
     list-style: none;
     padding: 0;
+    margin: 0;
 }
 
 .todo-item {
@@ -106,6 +107,8 @@ body, html {
     border: 1px solid #ccc;
     border-radius: 5px;
     margin-bottom: 10px;
+    background-color: #fff;
+    cursor: move;
 }
 
 .todo-item button {
@@ -131,7 +134,7 @@ body, html {
     background-color: gray;
     color: white;
     border: none;
-    margin-left: auto;
+    margin-left: 5px;
     margin-right: 5px;
 }
 
@@ -172,5 +175,37 @@ body, html {
     100% {
         opacity: 0;
         transform: translateY(-50px);
+    }
+}
+
+/* Drag handle */
+.drag-handle {
+    cursor: grab;
+    margin-right: 10px;
+    font-size: 18px;
+    line-height: 1;
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    #todo-container {
+        padding: 10px;
+    }
+
+    #new-todo, #bulk-todos {
+        width: calc(100% - 12px);
+    }
+
+    .bulk-actions button, #add-todo, #add-bulk-todos {
+        width: 100%;
+        margin: 5px 0;
+    }
+
+    #add-todo, #add-bulk-todos {
+        padding: 10px;
     }
 }
