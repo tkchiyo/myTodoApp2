@@ -26,6 +26,7 @@ function addTodo() {
     dragHandle.textContent = '≡';
 
     const todoSpan = document.createElement('span');
+    todoSpan.className = 'todo-text';
     todoSpan.textContent = todoText;
     
     const completeButton = document.createElement('button');
@@ -71,7 +72,7 @@ function deleteTodoItem(todoItem) {
 }
 
 function completeAllTodos() {
-    const todos = document.querySelectorAll('.todo-item span');
+    const todos = document.querySelectorAll('.todo-item .todo-text');
     const buttons = document.querySelectorAll('.complete-button');
     todos.forEach((todo, index) => {
         todo.classList.add('completed');
@@ -82,7 +83,7 @@ function completeAllTodos() {
 }
 
 function reviveAllTodos() {
-    const todos = document.querySelectorAll('.todo-item span');
+    const todos = document.querySelectorAll('.todo-item .todo-text');
     const buttons = document.querySelectorAll('.revive-button');
     todos.forEach((todo, index) => {
         todo.classList.remove('completed');
@@ -106,6 +107,7 @@ function addBulkTodos() {
             dragHandle.textContent = '≡';
 
             const todoSpan = document.createElement('span');
+            todoSpan.className = 'todo-text';
             todoSpan.textContent = todoText.trim();
             
             const completeButton = document.createElement('button');
@@ -136,8 +138,8 @@ function addBulkTodos() {
 function saveTodos() {
     const todos = [];
     document.querySelectorAll('.todo-item').forEach(todo => {
-        const todoText = todo.querySelector('span').textContent;
-        const completed = todo.querySelector('span').classList.contains('completed');
+        const todoText = todo.querySelector('.todo-text').textContent;
+        const completed = todo.querySelector('.todo-text').classList.contains('completed');
         todos.push({ text: todoText, completed: completed });
     });
     localStorage.setItem('todos', JSON.stringify(todos));
@@ -155,6 +157,7 @@ function loadTodos() {
         dragHandle.textContent = '≡';
 
         const todoSpan = document.createElement('span');
+        todoSpan.className = 'todo-text';
         todoSpan.textContent = todo.text;
         if (todo.completed) {
             todoSpan.classList.add('completed');
