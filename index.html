@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TODOリスト</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 </head>
 <body>
     <div id="todo-container">
@@ -15,7 +16,7 @@
             <button id="complete-all">すべて完了にする</button>
             <button id="revive-all">すべて復活する</button>
         </div>
-        <textarea id="bulk-todos" placeholder="まとめて追加するタスクを改行で区切って入力してください。" style="font-family: 'メイリオ', 'Meiryo', sans-serif;"></textarea>
+        <textarea id="bulk-todos" placeholder="まとめて追加するタスクを改行で区切って入力してください。"></textarea>
         <button id="add-bulk-todos">まとめて追加</button>
         <ul id="todo-list"></ul>
     </div>
