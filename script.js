@@ -17,18 +17,32 @@ function addTodo() {
     const todoText = document.getElementById('new-todo').value;
     if (todoText === '') return;
 
+    createTodoItem(todoText);
+    document.getElementById('new-todo').value = '';
+    saveTodos();
+}
+
+function addBulkTodos() {
+    const bulkText = document.getElementById('bulk-todos').value;
+    if (bulkText === '') return;
+
+    const todos = bulkText.split('\n').filter(todo => todo.trim() !== '');
+    todos.forEach(todoText => {
+        createTodoItem(todoText);
+    });
+
+    document.getElementById('bulk-todos').value = '';
+    saveTodos();
+}
+
+function createTodoItem(todoText) {
     const todoList = document.getElementById('todo-list');
     const todoItem = document.createElement('li');
     todoItem.className = 'todo-item';
-    
-    const dragHandle = document.createElement('span');
-    dragHandle.className = 'drag-handle';
-    dragHandle.textContent = '≡';
 
     const todoSpan = document.createElement('span');
-    todoSpan.className = 'todo-text';
     todoSpan.textContent = todoText;
-    
+
     const completeButton = document.createElement('button');
     completeButton.textContent = '完了';
     completeButton.className = 'complete-button';
@@ -40,155 +54,110 @@ function addTodo() {
     deleteButton.textContent = '削除';
     deleteButton.className = 'delete-button';
     deleteButton.addEventListener('click', () => {
-        deleteTodoItem(todoItem);
+        todoList.removeChild(todoItem);
+        saveTodos();
     });
 
-    todoItem.appendChild(dragHandle);
     todoItem.appendChild(todoSpan);
     todoItem.appendChild(completeButton);
     todoItem.appendChild(deleteButton);
     todoList.appendChild(todoItem);
-
-    document.getElementById('new-todo').value = '';
-    saveTodos();
 }
 
 function toggleCompleted(todoSpan, completeButton) {
-    if (todoSpan.classList.contains('completed')) {
-        todoSpan.classList.remove('completed');
+    if (todoSpan.style.textDecoration === 'line-through') {
+        todoSpan.style.textDecoration = '';
+        todoSpan.style.color = '';
         completeButton.textContent = '完了';
         completeButton.className = 'complete-button';
     } else {
-        todoSpan.classList.add('completed');
+        todoSpan.style.textDecoration = 'line-through';
+        todoSpan.style.color = 'gray';
         completeButton.textContent = '復活';
         completeButton.className = 'revive-button';
+        createEmojiEffect(completeButton, '💥');
     }
     saveTodos();
 }
 
-function deleteTodoItem(todoItem) {
-    todoItem.remove();
-    saveTodos();
+function createEmojiEffect(element, emoji) {
+    const rect = element.getBoundingClientRect();
+    
+    const emojiElement = document.createElement('div');
+    emojiElement.className = 'emoji';
+    emojiElement.style.left = `${rect.left + rect.width / 2}px`;
+    emojiElement.style.top = `${rect.top + rect.height / 2}px`;
+    emojiElement.textContent = emoji;
+    
+    const explosionContainer = document.getElementById('explosion-container');
+    if (explosionContainer) {
+        explosionContainer.appendChild(emojiElement);
+        setTimeout(() => emojiElement.remove(), 2000);
+    } else {
+        console.error('Explosion container not found.');
+    }
 }
 
 function completeAllTodos() {
-    const todos = document.querySelectorAll('.todo-item .todo-text');
-    const buttons = document.querySelectorAll('.complete-button');
-    todos.forEach((todo, index) => {
-        todo.classList.add('completed');
-        buttons[index].textContent = '復活';
-        buttons[index].className = 'revive-button';
+    const todoItems = document.querySelectorAll('.todo-item span');
+    const completeButtons = document.querySelectorAll('.complete-button, .revive-button');
+    todoItems.forEach((todoSpan, index) => {
+        todoSpan.style.textDecoration = 'line-through';
+        todoSpan.style.color = 'gray';
+        completeButtons[index].textContent = '復活';
+        completeButtons[index].className = 'revive-button';
     });
     saveTodos();
 }
 
 function reviveAllTodos() {
-    const todos = document.querySelectorAll('.todo-item .todo-text');
-    const buttons = document.querySelectorAll('.revive-button');
-    todos.forEach((todo, index) => {
-        todo.classList.remove('completed');
-        buttons[index].textContent = '完了';
-        buttons[index].className = 'complete-button';
+    const todoItems = document.querySelectorAll('.todo-item span');
+    const completeButtons = document.querySelectorAll('.complete-button, .revive-button');
+    todoItems.forEach((todoSpan, index) => {
+        todoSpan.style.textDecoration = '';
+        todoSpan.style.color = '';
+        completeButtons[index].textContent = '完了';
+        completeButtons[index].className = 'complete-button';
     });
-    saveTodos();
-}
-
-function addBulkTodos() {
-    const bulkText = document.getElementById('bulk-todos').value;
-    const todos = bulkText.split('\n');
-    todos.forEach(todoText => {
-        if (todoText.trim() !== '') {
-            const todoList = document.getElementById('todo-list');
-            const todoItem = document.createElement('li');
-            todoItem.className = 'todo-item';
-            
-            const dragHandle = document.createElement('span');
-            dragHandle.className = 'drag-handle';
-            dragHandle.textContent = '≡';
-
-            const todoSpan = document.createElement('span');
-            todoSpan.className = 'todo-text';
-            todoSpan.textContent = todoText.trim();
-            
-            const completeButton = document.createElement('button');
-            completeButton.textContent = '完了';
-            completeButton.className = 'complete-button';
-            completeButton.addEventListener('click', () => {
-                toggleCompleted(todoSpan, completeButton);
-            });
-
-            const deleteButton = document.createElement('button');
-            deleteButton.textContent = '削除';
-            deleteButton.className = 'delete-button';
-            deleteButton.addEventListener('click', () => {
-                deleteTodoItem(todoItem);
-            });
-
-            todoItem.appendChild(dragHandle);
-            todoItem.appendChild(todoSpan);
-            todoItem.appendChild(completeButton);
-            todoItem.appendChild(deleteButton);
-            todoList.appendChild(todoItem);
-        }
-    });
-    document.getElementById('bulk-todos').value = '';
     saveTodos();
 }
 
 function saveTodos() {
     const todos = [];
-    document.querySelectorAll('.todo-item').forEach(todo => {
-        const todoText = todo.querySelector('.todo-text').textContent;
-        const completed = todo.querySelector('.todo-text').classList.contains('completed');
-        todos.push({ text: todoText, completed: completed });
+    document.querySelectorAll('.todo-item').forEach(todoItem => {
+        const todoSpan = todoItem.querySelector('span');
+        todos.push({
+            text: todoSpan.textContent,
+            completed: todoSpan.style.textDecoration === 'line-through'
+        });
     });
     localStorage.setItem('todos', JSON.stringify(todos));
 }
 
 function loadTodos() {
-    const todos = JSON.parse(localStorage.getItem('todos')) || [];
-    todos.forEach(todo => {
-        const todoList = document.getElementById('todo-list');
-        const todoItem = document.createElement('li');
-        todoItem.className = 'todo-item';
-        
-        const dragHandle = document.createElement('span');
-        dragHandle.className = 'drag-handle';
-        dragHandle.textContent = '≡';
+    const todos = JSON.parse(localStorage.getItem('todos'));
+    if (todos) {
+        todos.forEach(todo => {
+            createTodoItem(todo.text);
+            const todoList = document.getElementById('todo-list');
+            const todoItem = todoList.lastChild;
+            const todoSpan = todoItem.querySelector('span');
+            const completeButton = todoItem.querySelector('button');
 
-        const todoSpan = document.createElement('span');
-        todoSpan.className = 'todo-text';
-        todoSpan.textContent = todo.text;
-        if (todo.completed) {
-            todoSpan.classList.add('completed');
-        }
-        
-        const completeButton = document.createElement('button');
-        completeButton.textContent = todo.completed ? '復活' : '完了';
-        completeButton.className = todo.completed ? 'revive-button' : 'complete-button';
-        completeButton.addEventListener('click', () => {
-            toggleCompleted(todoSpan, completeButton);
+            if (todo.completed) {
+                todoSpan.style.textDecoration = 'line-through';
+                todoSpan.style.color = 'gray';
+                completeButton.textContent = '復活';
+                completeButton.className = 'revive-button';
+            }
         });
-
-        const deleteButton = document.createElement('button');
-        deleteButton.textContent = '削除';
-        deleteButton.className = 'delete-button';
-        deleteButton.addEventListener('click', () => {
-            deleteTodoItem(todoItem);
-        });
-
-        todoItem.appendChild(dragHandle);
-        todoItem.appendChild(todoSpan);
-        todoItem.appendChild(completeButton);
-        todoItem.appendChild(deleteButton);
-        todoList.appendChild(todoItem);
-    });
+    }
 }
 
 function initializeSortable() {
     new Sortable(document.getElementById('todo-list'), {
-        handle: '.drag-handle',
         animation: 150,
+        ghostClass: 'sortable-ghost',
         onEnd: saveTodos
     });
 }
